@@ -1,4 +1,4 @@
-// public/app.js — clean, robust client for Ganga Boat Tracker
+
 
 // ====== LIVE DEVICE CLOCK ======
 function updateDeviceTime() {
@@ -159,7 +159,7 @@ function renderVerticalList(data) {
 
   list.innerHTML = "";
 
-  // Accept multiple backend shapes
+ 
   let departures = [];
   if (Array.isArray(data && data.allDepartures)) departures = data.allDepartures;
   else if (Array.isArray(data && data.departures)) departures = data.departures;
@@ -172,15 +172,12 @@ function renderVerticalList(data) {
     return;
   }
   //////////////////////////////////////
-  // optional: mark table's highlighted row with green style (if you use .row-highlight)
 const tableRow = document.querySelector(".schedule-table tbody tr.row-highlight");
 if (tableRow) {
-  tableRow.classList.add("next-highlight"); // this uses the CSS above
-  // remove after a while if you'd like
+  tableRow.classList.add("next-highlight"); /
   setTimeout(()=> tableRow.classList.remove("next-highlight"), 3000);
 }
-//////////////////////////////////////
-  // Normalize + map
+  //  map
   const normalize = (d) => {
     if (!d) return { timeLabel: "—", status: "" };
     const timeLabel = String(d.timeLabel || d.time || d.label || d.display || d.timeText || "—");
@@ -194,7 +191,7 @@ if (tableRow) {
     if (status.includes("past") || status.includes("depart")) return { label: "Past", cls: "past" };
     if (status.includes("upcom") || status.includes("scheduled")) return { label: "Upcoming", cls: "upcoming" };
     if (status.includes("tide") || status.includes("pause") || status.includes("blocked")) return { label: "High tide pause", cls: "blocked" };
-    // fallback: capitalise first letter
+   
     const label = status.charAt(0).toUpperCase() + status.slice(1);
     const cls = status.replace(/\s+/g, "-").replace(/[^a-z0-9-_]/gi, "").toLowerCase();
     return { label, cls };
@@ -233,8 +230,6 @@ if (tableRow) {
   wrapper.style.display = "block";
 }
 
-// scroll to & highlight the Next boat in the compact list//////////////////////////////////////////
-// improved focus + scroll helper — paste into public/app.js (replace old focusNextAndHighlight)
 function focusNextAndHighlight() {
   const wrapper = document.getElementById("scheduleListWrapper");
   const list = document.getElementById("scheduleList");
@@ -243,7 +238,6 @@ function focusNextAndHighlight() {
   const items = Array.from(list.querySelectorAll(".schedule-item"));
   if (!items.length) return;
 
-  // find the 'next' item by text or class
   let targetIndex = -1;
   items.forEach((it, idx) => {
     const pill = it.querySelector(".pill, .tag-pill");
@@ -251,7 +245,6 @@ function focusNextAndHighlight() {
     if (txt.includes("next")) targetIndex = idx;
   });
 
-  // fallback: first upcoming
   if (targetIndex === -1) {
     items.forEach((it, idx) => {
       const pill = it.querySelector(".pill, .tag-pill");
@@ -262,38 +255,30 @@ function focusNextAndHighlight() {
 
   if (targetIndex === -1) return;
 
-  // cleanup previous
   items.forEach(it => it.classList.remove("focused-next", "pulse"));
 
   const target = items[targetIndex];
   target.classList.add("focused-next");
 
-  // --- robust scroll: compute bounding rects and adjust wrapper.scrollTop ---
   const wrapperRect = wrapper.getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
 
-  // current scroll offset of wrapper
   const currentScroll = wrapper.scrollTop;
 
-  // distance from wrapper top to target top (in document coords)
   const offsetFromWrapperTop = targetRect.top - wrapperRect.top;
 
-  // desired scrollTop so the target is centered in wrapper
   const desiredScrollTop = currentScroll + offsetFromWrapperTop - (wrapper.clientHeight / 2) + (target.clientHeight / 2);
 
-  // clamp to valid range
   const maxScroll = list.scrollHeight - wrapper.clientHeight;
   const finalScroll = Math.max(0, Math.min(desiredScrollTop, maxScroll));
 
-  // smooth scroll
   try {
     wrapper.scrollTo({ top: finalScroll, behavior: "smooth" });
   } catch (e) {
-    // fallback
+    
     wrapper.scrollTop = finalScroll;
   }
 
-  // pulse effect
   target.classList.add("pulse");
   setTimeout(() => target.classList.remove("pulse"), 1000);
 }
@@ -328,7 +313,7 @@ async function renderRouteMap(data) {
   const end   = await geocodePlace(data.toCity);
 
   if (!start || !end) return;
-  // 🔵 Force map to focus near river line
+  //  map focus near river line
 const riverBias = [
   [start[0], start[1]],
   [end[0], end[1]]
@@ -369,14 +354,13 @@ const geoCache = {};
 async function geocodePlace(place) {
   if (!place) return null;
 
-  // ⚡ instant return if already fetched once
   if (geoCache[place]) return geoCache[place];
 
   const queries = [
     `${place} ferry ghat, Hooghly river, West Bengal, India`,
     `${place} ferry terminal, Hooghly river`,
     `${place} ghat, Hooghly river`,
-    `${place}, West Bengal, India` // final fallback
+    `${place}, West Bengal, India`
   ];
 
   for (const q of queries) {
@@ -412,16 +396,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("routeForm");
   const button = document.getElementById("checkButton");
 
-  // Safety: ensure elements exist
   if (!form) {
     console.warn("routeForm not found — aborting init");
     return;
   }
 
-  // Load routes into select (non-blocking)
   loadRoutes().catch((e) => console.warn("loadRoutes failed", e));
 
-  // Submit handler
   form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
 
@@ -432,7 +413,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const routeId = select.value;
 
-    // animate and disable button
     if (button) {
       button.disabled = true;
       button.classList.add("boat-animating");
@@ -440,16 +420,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const res = await fetch(`/api/schedule/${routeId}`);
-      // try to parse JSON even for non-200 responses
       const data = await res.json().catch(() => null);
 
       if (!res.ok || (data && data.error)) {
         console.warn("schedule API returned error or non-ok", data);
-        // show message on card
         const msg = document.getElementById("resultMessage");
         if (msg) msg.textContent = data?.error || "No schedule available for this route.";
 
-        // fallback demo list so UI shows the component
         const demo = {
           routeName: "Demo Route",
           fromCity: "Demo A",
@@ -468,7 +445,6 @@ document.addEventListener("DOMContentLoaded", () => {
         renderScheduleTable(demo);
         renderVerticalList(demo);
       } else {
-        // normal success path
         renderScheduleTable(data);
         renderVerticalList(data);
         renderRouteMap(data);
