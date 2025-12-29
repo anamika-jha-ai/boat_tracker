@@ -2,9 +2,9 @@
 @keyframes swirl { 0% { transform: translateY(0); } 50% { transform: translateY(-6px) rotate(-3deg); } 100% { transform: translateY(0); } }
 
 :root{
-  --bg1: #071022;   /* deep navy */
-  --bg2: #0c2033;   /* slightly lighter */
-  --accent: #29b6f6; /* bright blue */
+  --bg1: #071022;  
+  --bg2: #0c2033;   
+  --accent: #29b6f6;
   --glass: rgba(255,255,255,0.03);
   --card-shadow: 0 10px 30px rgba(2,6,23,0.6);
   --glass-border: rgba(255,255,255,0.04);
@@ -20,7 +20,6 @@ html,body{
   -webkit-font-smoothing:antialiased;
 }
 
-/* page container */
 .container-main{
   max-width:1100px;
   margin:40px auto;
@@ -30,7 +29,6 @@ html,body{
   align-items:flex-start;
 }
 
-/* left panel (form) */
 .left-panel{
   flex: 0 0 42%;
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
@@ -40,7 +38,6 @@ html,body{
   border:1px solid var(--glass-border);
 }
 
-/* right panel (results) */
 .right-panel{
   flex: 1;
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
@@ -50,7 +47,6 @@ html,body{
   border:1px solid var(--glass-border);
 }
 
-/* hidden helper */
 .hidden{
   opacity:0;
   transform: translateY(12px);
@@ -63,7 +59,6 @@ html,body{
   pointer-events:auto;
 }
 
-/* big heading */
 .hero-title{
   font-size:36px;
   font-weight:700;
@@ -71,7 +66,6 @@ html,body{
   margin-bottom:12px;
 }
 
-/* button */
 .btn-boat{
   display:inline-block;
   background: linear-gradient(90deg,var(--accent), #1fb0e6);
@@ -86,7 +80,6 @@ html,body{
 }
 .btn-boat:active{ transform: translateY(2px); }
 
-/* list style */
 .departure-list{
   list-style:none;
   margin:0;
@@ -98,7 +91,6 @@ html,body{
   background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.18));
 }
 
-/* each item */
 .departure-item{
   display:flex;
   justify-content:space-between;
@@ -108,7 +100,6 @@ html,body{
 }
 .departure-item:nth-child(odd){ background: rgba(255,255,255,0.01); }
 
-/* running tag */
 .tag{
   background: rgba(23,150,100,0.12);
   color: #bff1c8;
@@ -117,7 +108,6 @@ html,body{
   font-size:12px;
 }
 
-/* boat animation on button press (simple ripple/boat float) */
 .boat-anim {
   position:relative;
   overflow:hidden;
@@ -140,7 +130,6 @@ html,body{
   100%{ transform:translateX(-50%) translateY(-16px) scale(1.05); opacity:0;}
 }
 
-/* subtle background floating shapes (optional) */
 .bg-deco{
   position:fixed;
   right:-120px;
@@ -152,7 +141,6 @@ html,body{
   filter: blur(30px);
   z-index:0;
 }
-/* Vertical schedule list (compact) */
 .vertical-schedule-list {
   max-height: 320px;
   overflow-y: auto;
@@ -174,14 +162,12 @@ html,body{
   transition: transform .12s ease, box-shadow .12s ease;
 }
 
-/* left time */
 .schedule-item .time {
   font-weight: 700;
   font-size: 1rem;
   min-width: 100px;
 }
 
-/* pill */
 .pill {
   min-width: 84px;
   display: inline-flex;
@@ -192,7 +178,6 @@ html,body{
   font-weight: 700;
 }
 
-/* Next = green */
 .pill.next {
   background: linear-gradient(155deg,#00f5a0,#00d084);
   color: #012;
@@ -200,14 +185,12 @@ html,body{
   height: 20px;
 }
 
-/* Past */
 .pill.past {
   background: rgba(15,23,42,0.95);
   color: #64748b;
   opacity: 0.9;
 }
 
-/* Upcoming */
 .pill.upcoming {
   background: rgba(30,64,175,0.45);
   color: #e0f2fe;
@@ -218,7 +201,6 @@ html,body{
   box-shadow: 0 14px 32px rgba(2,6,23,0.6);
 }
 
-/* small screens */
 @media (max-width: 768px) {
   .vertical-schedule-list { max-height: 300px; }
   .schedule-item .time { min-width: 72px; font-size: 0.95rem; }
@@ -226,20 +208,17 @@ html,body{
 
 
 
-/* --- Card height & equalise --- */
 .hero-section .row.g-4 {
-  align-items: stretch; /* make columns same height */
+  align-items: stretch;
 }
 
-/* Limit left card height and allow internal scroll */
 .col-lg-5 .glass-card {
-  max-height: 320px;      /* change this number if you want shorter/taller */
+  max-height: 320px;      
   overflow: auto;
   display: flex;
   flex-direction: column;
 }
 
-/* Ensure right card also scrolls if content large */
 .col-lg-6 .glass-card {
   max-height: 440px;
   overflow: auto;
@@ -247,14 +226,12 @@ html,body{
   flex-direction: column;
 }
 
-/* --- Vertical list / highlight styles --- */
 .schedule-item {
   padding: 0.55rem 0.9rem;
   border-radius: 12px;
   transition: box-shadow 320ms ease, transform 260ms ease, background 260ms ease;
 }
 
-/* next boat highlight for compact list */
 .schedule-item.focused-next,
 .row-highlight.next-highlight {
   background: linear-gradient(90deg, rgba(16,185,129,0.08), rgba(16,185,129,0.02));
@@ -262,7 +239,6 @@ html,body{
   transform: translateY(-2px);
 }
 
-/* pill look (next) */
 .pill.next, .tag-next {
   background: linear-gradient(90deg, #10b981, #34d399);
   color: rgba(0,10,6,0.95);
@@ -270,7 +246,6 @@ html,body{
   font-weight: 600;
 }
 
-/* small pulse animation used when focused */
 @keyframes pulseGlow {
   0% { box-shadow: 0 6px 18px rgba(16,185,129,0.10); transform: translateY(0); }
   50% { box-shadow: 0 26px 50px rgba(16,185,129,0.18); transform: translateY(-4px); }
