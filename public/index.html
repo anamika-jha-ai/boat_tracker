@@ -9,19 +9,15 @@
   <title>Ganga Boat Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!--styling animation -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
     rel="stylesheet" />
 
-  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css" />
   
   <style>
@@ -58,7 +54,6 @@
       overflow-x: hidden;
     }
 
-    /* Soft animated waves */
     .wave-layer {
       position: fixed;
       inset: auto 0 0 0;
@@ -90,7 +85,6 @@
       }
     }
 
-    /* Navbar */
     .glass-nav {
       background: linear-gradient(to right, #020617cc, #020617e6);
       border-bottom: 1px solid rgba(148, 163, 184, 0.08);
@@ -136,7 +130,6 @@
       color: var(--text-main);
     }
 
-    /* Hero */
     .hero-section {
       padding-top: 64px;
       padding-bottom: 24px;
@@ -181,7 +174,6 @@
       margin-top: 0.4rem;
     }
 
-    /* Layout cards */
     .glass-card {
       background: radial-gradient(circle at 0% 0%,
           rgba(59, 130, 246, 0.22),
@@ -231,7 +223,6 @@
       color: var(--text-main);
     }
 
-    /* Boat button */
     .boat-btn {
       position: relative;
       overflow: hidden;
@@ -294,7 +285,6 @@
       opacity: 1;
     }
 
-    /* Results */
     .route-title {
       display: flex;
       align-items: center;
@@ -420,7 +410,6 @@
   <div class="wave-layer"></div>
   <div class="wave-layer wave-2"></div>
 
-  <!-- NAVBAR -->
   <nav class="navbar glass-nav navbar-dark fixed-top">
     <div class="container-xl py-2">
       <div class="brand-mark">
@@ -436,10 +425,8 @@
     </div>
   </nav>
 
-  <!-- MAIN -->
   <main class="hero-section">
     <div class="container-xl">
-      <!-- Hero content -->
       <div class="text-center mb-4">
         <h1 class="hero-heading">
           Find your <span class="accent">next boat</span> across the Ganga
@@ -454,9 +441,7 @@
         <div class="clock-caption">Based on your device’s current time</div>
       </div>
 
-      <!-- Two-column layout -->
       <div class="row g-4 align-items-start justify-content-center mt-3">
-        <!-- Left: selection -->
         <div class="col-lg-5 col-md-6">
           <div class="glass-card p-4">
             <div class="card-header-soft d-flex justify-content-between">
@@ -490,7 +475,6 @@
           </div>
         </div>
 
-        <!-- Right: results -->
         <div class="col-lg-6 col-md-6">
           <div id="resultsCard" class="glass-card p-4 hidden"
             style="opacity: 0; transform: translateY(14px); pointer-events: none;">
@@ -526,35 +510,22 @@
                   </tr>
                 </thead>
                 <tbody id="scheduleBody">
-                  <!-- Filled by JS -->
-                  <!-- <p class="message-soft mt-3 mb-0">
-                      Around noon, services pause for high tide (about
-                      <strong>12:00–12:45 PM</strong>).
-                   </p> -->
+                  
                 </tbody>
               </table>
             </div>
           </div>
         </div>
-        <!-- Map (hidden until timings load) -->
 <div id="mapWrapper" class="glass-card p-4 mt-4" style="display:none;">
   <div id="map" style="height:320px; width:100%; border-radius:18px;"></div>
 </div>
 
       </div>
 
-      <!-- <div class="text-center mt-4 mb-3">
-          <small class="message-soft">
-            *Times are approximate and for academic/demo purposes only.
-          </small>
-        </div>
-      </div>
-    </main> -->
+    
 
-      <!-- Bootstrap JS (optional for dropdown behaviour) -->
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-      <!-- App logic -->
       <script src="app.js"></script>
 </body>
 
