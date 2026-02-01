@@ -1,0 +1,119 @@
+[{
+  "_id": {
+    "$oid": "6924961bb49a4840fde97369"
+  },
+  "name": "Rishra - Khardaha",
+  "fromCity": "Rishra",
+  "toCity": "Khardaha",
+  "firstDepartureMinutes": 300,
+  "lastDepartureMinutes": 1340,
+  "crossingTimeMin": 5,
+  "crossingTimeMax": 7,
+  "highTideStartMinutes": 720,
+  "highTideDurationMinutes": 45,
+  "__v": 0,
+  "intervalMinutes": 20
+},
+{
+  "_id": {
+    "$oid": "6924961bb49a4840fde9736a"
+  },
+  "name": "Konnagar - Sodepur",
+  "fromCity": "Konnagar",
+  "toCity": "Sodepur",
+  "firstDepartureMinutes": 300,
+  "lastDepartureMinutes": 1340,
+  "crossingTimeMin": 5,
+  "crossingTimeMax": 7,
+  "highTideStartMinutes": 720,
+  "highTideDurationMinutes": 45,
+  "__v": 0,
+  "intervalMinutes": 10
+},
+{
+  "_id": {
+    "$oid": "6925aa977cb403c41163b113"
+  },
+  "name": "Sherampore → Barrackpore",
+  "fromCity": "Sherampore",
+  "toCity": "Barrackpore",
+  "firstDepartureMinutres": 330,
+  "lastDepartureMinutes": 1340,
+  "crossingTimeMin": 5,
+  "crossingTimeMax": 7,
+  "highTideStartMinutes": 720,
+  "highTideDurationMinutes": 20,
+  "intervalMinutes": 10
+},
+{
+  "_id": {
+    "$oid": "695ac9238219c13d1e63b112"
+  },
+  "name": "Sheoraphuli ↔ Manirampur",
+  "fromCity": "Sheoraphuli",
+  "toCity": "Manirampur",
+  "code": "SHEORAPHULI_MANIRAMPUR",
+  "firstDepartureMinutes": 300,
+  "lastDepartureMinutes": 1140,
+  "intervalMinutes": 10
+},
+{
+  "_id": {
+    "$oid": "695ac9d08219c13d1e63b113"
+  },
+  "name": "Baidyabati ↔ Ichhapur",
+  "fromCity": "Baidyabati",
+  "toCity": "Ichhapur",
+  "code": "BAIDYABATI_ICHHAPUR",
+  "firstDepartureMinutes": 300,
+  "lastDepartureMinutes": 1140,
+  "intervalMinutes": 15
+},
+{
+  "_id": {
+    "$oid": "695accac8219c13d1e63b114"
+  },
+  "name": " Uttarpara kheyaghat ↔ Ariadaha",
+  "fromCity": "Uttarpara kheyaghat",
+  "toCity": "Ariadaha",
+  "code": "UTTARPARAJHEYAGHAT_ARIADAHA",
+  "firstDepartureMinutes": 300,
+  "lastDepartureMinutes": 1140,
+  "intervalMinutes": 30
+},
+{
+  "_id": {
+    "$oid": "695acd238219c13d1e63b115"
+  },
+  "name": " Uttarpara ↔ Dakshineswar",
+  "fromCity": "Uttarpara ",
+  "toCity": "Dakshineswar",
+  "code": "UTTARPARA_DAKSHINESWAR",
+  "firstDepartureMinutes": 300,
+  "lastDepartureMinutes": 1140,
+  "intervalMinutes": 15
+},
+{
+  "_id": {
+    "$oid": "695acd918219c13d1e63b116"
+  },
+  "name": "  Dakshineswar ↔ Uttarpara ",
+  "fromCity": "Dakshineswar ",
+  "toCity": "Uttarpara ",
+  "code": "DAKSHINESWAR_UTTARPARA",
+  "firstDepartureMinutes": 300,
+  "lastDepartureMinutes": 1140,
+  "intervalMinutes": 15
+},
+{
+  "_id": {
+    "$oid": "695acddd8219c13d1e63b117"
+  },
+  "name": "  Dakshineswar ↔ Bellur Math ",
+  "fromCity": "Dakshineswar ",
+  "toCity": "Bellur Math",
+  "code": "DAKSHINESWAR_BELLURMATH",
+  "firstDepartureMinutes": 300,
+  "lastDepartureMinutes": 1140,
+  "intervalMinutes": 20
+}]
