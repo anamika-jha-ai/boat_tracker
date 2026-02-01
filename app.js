@@ -420,8 +420,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const res = await fetch(`/api/schedule/${routeId}`);
-      const data = await res.json().catch(() => null);
+      const res = await fetch("routes.json");
+      const schedules = await res.json();
+      const data = schedules[routeId];
+
 
       if (!res.ok || (data && data.error)) {
         console.warn("schedule API returned error or non-ok", data);
