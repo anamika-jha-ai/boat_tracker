@@ -73,7 +73,7 @@ async function loadRoutes() {
   if (!select) return;
 
   try {
-    const res = await fetch("routes.json"); // 👈 FIXED
+    const res = await fetch("routes.json"); 
     const routes = await res.json();
 
     select.innerHTML = '<option value="">Choose a route…</option>';
