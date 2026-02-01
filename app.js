@@ -73,31 +73,32 @@ async function loadRoutes() {
   if (!select) return;
 
   try {
-    const res = await fetch("/api/routes");
+    const res = await fetch("routes.json"); // 👈 FIXED
     const routes = await res.json();
 
     select.innerHTML = '<option value="">Choose a route…</option>';
+
     (routes || []).forEach((r) => {
       const opt = document.createElement("option");
-      opt.value = r.id ?? r._id ?? r.routeId ?? JSON.stringify(r);
+      opt.value = r.code || r._id || JSON.stringify(r);
 
       if (r.fromCity && r.toCity) {
         opt.textContent = `${r.fromCity} → ${r.toCity}`;
-      } else if (r.title) {
-        opt.textContent = r.title;
       } else if (r.name) {
         opt.textContent = r.name;
       } else {
-        // fallback (stringify if nothing nice)
-        opt.textContent = r.id || r._id || opt.value;
+        opt.textContent = opt.value;
       }
+
       select.appendChild(opt);
     });
+
   } catch (err) {
     console.error("loadRoutes error", err);
     select.innerHTML = '<option value="">Could not load routes</option>';
   }
 }
+
 
 // ====== TABLE RENDER ======
 function renderScheduleTable(data) {
