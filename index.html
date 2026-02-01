@@ -1,465 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <meta charset="UTF-8" />
+  <title>Ganga Boat Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
 
 
-// ====== LIVE DEVICE CLOCK ======
-function updateDeviceTime() {
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString("en-IN", {
-    hour12: false,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
 
-  const clockMain = document.getElementById("deviceTime");
-  const clockSmall = document.getElementById("deviceTimeSmall");
-  if (clockMain) clockMain.textContent = timeStr;
-  if (clockSmall) clockSmall.textContent = timeStr;
-}
-setInterval(updateDeviceTime, 1000);
-updateDeviceTime();
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-// ====== HELPERS ======
-function setStatusPill(status) {
-  const pill = document.getElementById("statusPill");
-  const dot = document.getElementById("statusBadgeDot");
-  if (!pill || !dot) return;
+  <link rel="stylesheet" href="style.css" />
+  
+  <style>
+    :root {
+      --bg-deep: #020617;
+      --bg-card: rgba(15, 23, 42, 0.9);
+      --accent: #3b82f6;
+      --accent-soft: #60a5fa;
+      --accent-strong: #1d4ed8;
+      --text-main: #e5f0ff;
+      --text-muted: #94a3b8;
+      --danger: #fb7185;
+      --success: #4ade80;
+      --warning: #facc15;
+    }
 
-  pill.className = "status-pill";
-  dot.className = "badge-dot";
+    * {
+      box-sizing: border-box;
+    }
 
-  const s = String(status || "").toLowerCase();
-  if (s.includes("run")) {
-    pill.classList.add("status-running");
-    dot.classList.remove("closed");
-    dot.classList.add("running");
-    pill.textContent = "Running today";
-  } else if (s.includes("tide") || s.includes("pause")) {
-    pill.classList.add("status-tide");
-    dot.classList.remove("running");
-    dot.classList.add("paused");
-    pill.textContent = "Paused · High tide";
-  } else if (s.includes("closed")) {
-    pill.classList.add("status-closed");
-    dot.classList.add("closed");
-    pill.textContent = "Closed for today";
-  } else {
-    pill.classList.add("status-closed");
-    dot.classList.add("closed");
-    pill.textContent = "Status";
-  }
-}
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at 0% 0%,
+          rgba(59, 130, 246, 0.18),
+          transparent 55%),
+        radial-gradient(circle at 100% 100%,
+          rgba(56, 189, 248, 0.16),
+          transparent 55%),
+        linear-gradient(145deg, #020617, #020617 40%, #02081d);
+      overflow-x: hidden;
+    }
 
-function tagForStatus(status) {
-  const s = String(status || "").toLowerCase();
-  if (s.includes("next")) return { label: "Next boat", css: "tag-next" };
-  if (s.includes("past") || s.includes("depart")) return { label: "Past", css: "tag-past" };
-  if (s.includes("upcom") || s.includes("scheduled")) return { label: "Upcoming", css: "tag-upcoming" };
-  if (s.includes("tide") || s.includes("pause") || s.includes("blocked")) return { label: "High tide pause", css: "tag-blocked" };
-  return { label: "", css: "" };
-}
+    .wave-layer {
+      position: fixed;
+      inset: auto 0 0 0;
+      height: 220px;
+      pointer-events: none;
+      opacity: 0.22;
+      background: radial-gradient(circle at 10% 0%,
+          rgba(59, 130, 246, 0.7),
+          transparent 55%);
+      filter: blur(10px);
+      animation: floatWave 18s ease-in-out infinite alternate;
+      z-index: -1;
+    }
 
-function animateResultsCardIn() {
-  const card = document.getElementById("resultsCard");
-  if (!card) return;
-  card.style.pointerEvents = "auto";
-  card.style.transition = "opacity 420ms ease, transform 420ms ease";
-  card.style.opacity = "1";
-  card.style.transform = "translateY(0)";
-}
+    .wave-layer.wave-2 {
+      height: 260px;
+      opacity: 0.18;
+      animation-duration: 24s;
+      animation-direction: alternate-reverse;
+    }
 
-// ====== LOAD ROUTES ======
-async function loadRoutes() {
-  const select = document.getElementById("routeSelect");
-  if (!select) return;
-
-  try {
-    const res = await fetch("/api/routes");
-    const routes = await res.json();
-
-    select.innerHTML = '<option value="">Choose a route…</option>';
-    (routes || []).forEach((r) => {
-      const opt = document.createElement("option");
-      opt.value = r.id ?? r._id ?? r.routeId ?? JSON.stringify(r);
-
-      if (r.fromCity && r.toCity) {
-        opt.textContent = `${r.fromCity} → ${r.toCity}`;
-      } else if (r.title) {
-        opt.textContent = r.title;
-      } else if (r.name) {
-        opt.textContent = r.name;
-      } else {
-        // fallback (stringify if nothing nice)
-        opt.textContent = r.id || r._id || opt.value;
+    @keyframes floatWave {
+      from {
+        transform: translateY(0px) translateX(-10px) scale(1);
       }
-      select.appendChild(opt);
-    });
-  } catch (err) {
-    console.error("loadRoutes error", err);
-    select.innerHTML = '<option value="">Could not load routes</option>';
-  }
-}
 
-// ====== TABLE RENDER ======
-function renderScheduleTable(data) {
-  const title = document.getElementById("routeTitle");
-  const dirChip = document.getElementById("routeDirection");
-  const subtitle = document.getElementById("resultSubtitle");
-  const msg = document.getElementById("resultMessage");
-  const tbody = document.getElementById("scheduleBody");
+      to {
+        transform: translateY(-35px) translateX(10px) scale(1.05);
+      }
+    }
 
-  if (!title || !subtitle || !msg || !tbody) return;
+    .glass-nav {
+      background: linear-gradient(to right, #020617cc, #020617e6);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+      backdrop-filter: blur(18px);
+    }
 
-  title.textContent = data.routeName || "Route details";
-  if (dirChip) dirChip.classList.remove("d-none");
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
 
-  if (data.fromCity && data.toCity) dirChip.textContent = `${data.fromCity} → ${data.toCity}`;
-  else if (data.routeName) dirChip.textContent = data.routeName;
-  else dirChip.textContent = "";
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 20% 0%, #ffffffdd, #1d4ed8);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.6);
+    }
 
-  subtitle.textContent = `Today’s departures · Next boat at ${ (data.nextDeparture && (data.nextDeparture.timeLabel || data.nextDeparture.time)) || "—" }`;
-  msg.textContent = data.message || "";
+    .device-time-chip {
+      font-size: 0.8rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: radial-gradient(circle at 0% 0%,
+          rgba(59, 130, 246, 0.32),
+          rgba(15, 23, 42, 0.95));
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-muted);
+    }
 
-  setStatusPill(data.serviceStatus);
+    .device-time-chip span.time {
+      font-weight: 500;
+      color: var(--text-main);
+    }
 
-  tbody.innerHTML = "";
-  const departures = Array.isArray(data.allDepartures) ? data.allDepartures : (Array.isArray(data.departures) ? data.departures : []);
-  departures.forEach((dep) => {
-    const tr = document.createElement("tr");
-    tr.classList.add("border-top");
+    .hero-section {
+      padding-top: 64px;
+      padding-bottom: 24px;
+    }
 
-    const timeTd = document.createElement("td");
-    timeTd.classList.add("time-cell");
-    timeTd.textContent = dep.timeLabel || dep.time || dep.label || "—";
+    .hero-heading {
+      font-size: clamp(2.4rem, 3vw + 1.3rem, 3.4rem);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-align: center;
+    }
 
-    const tagTd = document.createElement("td");
-    tagTd.classList.add("text-end");
+    .hero-heading span.accent {
+      background: linear-gradient(120deg, #60a5fa, #a5b4fc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
 
-    const tagInfo = tagForStatus(dep.status || dep.tag || dep.labelStatus);
-    const span = document.createElement("span");
-    span.classList.add("tag-pill");
-    if (tagInfo.css) span.classList.add(tagInfo.css);
-    span.textContent = tagInfo.label || "—";
-    tagTd.appendChild(span);
+    .hero-subtitle {
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0.85rem auto 0;
+      text-align: center;
+      font-size: 0.98rem;
+    }
 
-    if ((dep.status || "").toString().toLowerCase().includes("next")) tr.classList.add("row-highlight");
+    .hero-clock {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-align: center;
+      margin-top: 1.7rem;
+    }
 
-    tr.appendChild(timeTd);
-    tr.appendChild(tagTd);
-    tbody.appendChild(tr);
-  });
+    .clock-caption {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-top: 0.4rem;
+    }
 
-  animateResultsCardIn();
-}
+    .glass-card {
+      background: radial-gradient(circle at 0% 0%,
+          rgba(59, 130, 246, 0.22),
+          transparent 55%) border-box,
+        var(--bg-card);
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      box-shadow: 0 22px 60px rgba(15, 23, 42, 0.85);
+    }
 
-// ====== SAFE VERTICAL LIST RENDER ======
-function renderVerticalList(data) {
-  const wrapper = document.getElementById("scheduleListWrapper");
-  const list = document.getElementById("scheduleList");
-  if (!wrapper || !list) return;
+    .card-header-soft {
+      border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+      padding-bottom: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
 
-  list.innerHTML = "";
+    .card-title-main {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
 
- 
-  let departures = [];
-  if (Array.isArray(data && data.allDepartures)) departures = data.allDepartures;
-  else if (Array.isArray(data && data.departures)) departures = data.departures;
-  else if (Array.isArray(data && data.schedule)) departures = data.schedule;
-  else if (Array.isArray(data && data.times)) departures = data.times;
-  else if (Array.isArray(data)) departures = data;
+    .card-subtitle-soft {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
 
-  if (!departures || departures.length === 0) {
-    wrapper.style.display = "block";
-    return;
-  }
-  //////////////////////////////////////
-const tableRow = document.querySelector(".schedule-table tbody tr.row-highlight");
-if (tableRow) {
-  tableRow.classList.add("next-highlight"); /
-  setTimeout(()=> tableRow.classList.remove("next-highlight"), 3000);
-}
-  //  map
-  const normalize = (d) => {
-    if (!d) return { timeLabel: "—", status: "" };
-    const timeLabel = String(d.timeLabel || d.time || d.label || d.display || d.timeText || "—");
-    const statusRaw = String(d.status || d.tag || d.state || d.labelStatus || "").trim().toLowerCase();
-    return { timeLabel, status: statusRaw };
-  };
+    label.form-label {
+      font-size: 0.86rem;
+      color: #cbd5f5;
+    }
 
-  const mapStatus = (status) => {
-    if (!status) return { label: "—", cls: "" };
-    if (status.includes("next")) return { label: "Next boat", cls: "next" };
-    if (status.includes("past") || status.includes("depart")) return { label: "Past", cls: "past" };
-    if (status.includes("upcom") || status.includes("scheduled")) return { label: "Upcoming", cls: "upcoming" };
-    if (status.includes("tide") || status.includes("pause") || status.includes("blocked")) return { label: "High tide pause", cls: "blocked" };
-   
-    const label = status.charAt(0).toUpperCase() + status.slice(1);
-    const cls = status.replace(/\s+/g, "-").replace(/[^a-z0-9-_]/gi, "").toLowerCase();
-    return { label, cls };
-  };
+    .form-control,
+    .form-select {
+      background-color: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      padding: 0.6rem 1rem;
+    }
 
-  departures.forEach((raw) => {
-    const dep = normalize(raw);
-    const s = mapStatus(dep.status);
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--accent-soft);
+      box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.6);
+      background-color: rgba(15, 23, 42, 0.96);
+      color: var(--text-main);
+    }
 
-    const item = document.createElement("div");
-    item.className = "schedule-item d-flex align-items-center justify-content-between";
+    .boat-btn {
+      position: relative;
+      overflow: hidden;
+      border-radius: 999px;
+      font-weight: 500;
+      padding: 0.7rem 1.8rem;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+      box-shadow: 0 18px 35px rgba(37, 99, 235, 0.55);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
 
-    const left = document.createElement("div");
-    left.className = "d-flex flex-column";
-    const timeDiv = document.createElement("div");
-    timeDiv.className = "time";
-    timeDiv.textContent = dep.timeLabel || "—";
-    left.appendChild(timeDiv);
+    .boat-btn:disabled {
+      opacity: 0.7;
+      cursor: wait;
+      box-shadow: none;
+    }
 
-    const right = document.createElement("div");
-    right.className = "d-flex align-items-center";
+    .boat-icon {
+      display: inline-block;
+      transition: transform 400ms ease;
+    }
 
-    const pill = document.createElement("div");
-    pill.className = "pill";
-    if (s.cls) pill.classList.add(s.cls);
-    pill.textContent = s.label || "—";
-    right.appendChild(pill);
+    .boat-btn.boat-animating .boat-icon {
+      animation: sail 0.9s ease-in-out forwards;
+    }
 
-    if (s.cls === "next") item.classList.add("row-highlight");
+    @keyframes sail {
+      0% {
+        transform: translateX(0) translateY(0);
+      }
 
-    item.appendChild(left);
-    item.appendChild(right);
-    list.appendChild(item);
-  });
+      40% {
+        transform: translateX(6px) translateY(-2px);
+      }
 
-  wrapper.style.display = "block";
-}
+      80% {
+        transform: translateX(12px) translateY(2px);
+      }
 
-function focusNextAndHighlight() {
-  const wrapper = document.getElementById("scheduleListWrapper");
-  const list = document.getElementById("scheduleList");
-  if (!wrapper || !list) return;
+      100% {
+        transform: translateX(18px) translateY(0);
+      }
+    }
 
-  const items = Array.from(list.querySelectorAll(".schedule-item"));
-  if (!items.length) return;
+    .boat-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      background: radial-gradient(circle at 10% 0%,
+          rgba(191, 219, 254, 0.85),
+          transparent 55%);
+      transition: opacity 0.35s ease;
+    }
 
-  let targetIndex = -1;
-  items.forEach((it, idx) => {
-    const pill = it.querySelector(".pill, .tag-pill");
-    const txt = (pill && pill.textContent || "").toLowerCase();
-    if (txt.includes("next")) targetIndex = idx;
-  });
+    .boat-btn.boat-animating::after {
+      opacity: 1;
+    }
 
-  if (targetIndex === -1) {
-    items.forEach((it, idx) => {
-      const pill = it.querySelector(".pill, .tag-pill");
-      const txt = (pill && pill.textContent || "").toLowerCase();
-      if (txt.includes("upcom") && targetIndex === -1) targetIndex = idx;
-    });
-  }
+    .route-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 600;
+    }
 
-  if (targetIndex === -1) return;
+    .route-chip {
+      font-size: 0.72rem;
+      padding: 0.18rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: var(--text-muted);
+    }
 
-  items.forEach(it => it.classList.remove("focused-next", "pulse"));
+    .status-pill {
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+    }
 
-  const target = items[targetIndex];
-  target.classList.add("focused-next");
+    .status-running {
+      background: rgba(22, 163, 74, 0.22);
+      color: var(--success);
+    }
 
-  const wrapperRect = wrapper.getBoundingClientRect();
-  const targetRect = target.getBoundingClientRect();
+    .status-tide {
+      background: rgba(250, 204, 21, 0.2);
+      color: var(--warning);
+    }
 
-  const currentScroll = wrapper.scrollTop;
+    .status-closed {
+      background: rgba(248, 113, 113, 0.2);
+      color: var(--danger);
+    }
 
-  const offsetFromWrapperTop = targetRect.top - wrapperRect.top;
+    .schedule-table {
+      font-size: 0.86rem;
+    }
 
-  const desiredScrollTop = currentScroll + offsetFromWrapperTop - (wrapper.clientHeight / 2) + (target.clientHeight / 2);
+    .schedule-table tbody tr {
+      border-color: rgba(30, 64, 175, 0.3);
+    }
 
-  const maxScroll = list.scrollHeight - wrapper.clientHeight;
-  const finalScroll = Math.max(0, Math.min(desiredScrollTop, maxScroll));
+    .schedule-table .time-cell {
+      font-variant-numeric: tabular-nums;
+    }
 
-  try {
-    wrapper.scrollTo({ top: finalScroll, behavior: "smooth" });
-  } catch (e) {
+    .schedule-table .tag-pill {
+      font-size: 0.7rem;
+      border-radius: 999px;
+      padding: 0.18rem 0.7rem;
+    }
+
+    /* .tag-next {
+      background: rgba(37, 99, 235, 0.14);
+      color: #bfdbfe;
+    } */
+
+    .tag-past {
+      background: rgba(15, 23, 42, 0.95);
+      color: #64748b;
+    }
+
+    .tag-upcoming {
+      background: rgba(30, 64, 175, 0.45);
+      color: #e0f2fe;
+    }
+
+    .tag-blocked {
+      background: rgba(148, 163, 184, 0.12);
+      color: #eab308;
+    }
+
+    .row-highlight {
+      background: linear-gradient(90deg,
+          rgba(37, 99, 235, 0.22),
+          rgba(30, 64, 175, 0.05));
+    }
+
+    .message-soft {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #4ade80;
+      box-shadow: 0 0 0 6px rgba(74, 222, 128, 0.2);
+    }
+
+    .badge-dot.paused {
+      background: #facc15;
+      box-shadow: 0 0 0 6px rgba(250, 204, 21, 0.2);
+    }
+
+    .badge-dot.closed {
+      background: #fb7185;
+      box-shadow: 0 0 0 6px rgba(248, 113, 113, 0.2);
+    }
+
+    @media (max-width: 991.98px) {
+      .hero-section {
+        padding-top: 56px;
+      }
+
+      .glass-card {
+        border-radius: 20px;
+      }
+
+      .schedule-table {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wave-layer"></div>
+  <div class="wave-layer wave-2"></div>
+
+  <nav class="navbar glass-nav navbar-dark fixed-top">
+    <div class="container-xl py-2">
+      <div class="brand-mark">
+        <span class="brand-icon">🚤</span>
+        <span>Ganga Boat&nbsp;Tracker</span>
+      </div>
+
+      <div class="device-time-chip">
+        <span style="width: 8px; height: 8px; border-radius: 999px; background: #22c55e;"></span>
+        <span>Device time:</span>
+        <span id="deviceTimeSmall" class="time">--:--:--</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="hero-section">
+    <div class="container-xl">
+      <div class="text-center mb-4">
+        <h1 class="hero-heading">
+          Find your <span class="accent">next boat</span> across the Ganga
+        </h1>
+        <p class="hero-subtitle">
+          Check real-time departures for daily Ganga boat crossings. Pick
+          your boarding ghat and we’ll show you the next and upcoming
+          services.
+        </p>
+
+        <div class="hero-clock" id="deviceTime">--:--:--</div>
+        <div class="clock-caption">Based on your device’s current time</div>
+      </div>
+
+      <div class="row g-4 align-items-start justify-content-center mt-3">
+        <div class="col-lg-5 col-md-6">
+          <div class="glass-card p-4">
+            <div class="card-header-soft d-flex justify-content-between">
+              <div>
+                <div class="card-title-main">Choose your boarding ghat</div>
+                <div class="card-subtitle-soft">
+                  Select the direction you’re travelling.
+                </div>
+              </div>
+              <div class="route-chip">Live lookup</div>
+            </div>
+
+            <form id="routeForm">
+              <div class="mb-3">
+                <label for="routeSelect" class="form-label">Route (city ↔ city)</label>
+                <select id="routeSelect" class="form-select" required>
+                  <option value="">Loading routes…</option>
+                </select>
+              </div>
+
+              <button type="submit" id="checkButton" class="btn btn-primary boat-btn w-100 mt-2">
+                <span class="boat-icon">⛵</span>
+                <span>Find my next boat</span>
+              </button>
+
+              <p class="message-soft mt-3 mb-0">
+                Around noon, services pause for high tide (about
+                <strong>12:00–12:45 PM</strong>).
+              </p>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-lg-6 col-md-6">
+          <div id="resultsCard" class="glass-card p-4 hidden"
+            style="opacity: 0; transform: translateY(14px); pointer-events: none;">
+            <div class="card-header-soft d-flex justify-content-between">
+              <div>
+                <div class="route-title">
+                  <span id="routeTitle">Route details</span>
+                  <span id="routeDirection" class="route-chip d-none"></span>
+                </div>
+                <div id="resultSubtitle" class="card-subtitle-soft mt-1"></div>
+              </div>
+
+              <div class="d-flex flex-column align-items-end gap-1">
+                <span id="statusPill" class="status-pill status-closed">
+                  STATUS
+                </span>
+                <span class="message-soft">
+                  <span id="statusBadgeDot" class="badge-dot closed"></span>
+                </span>
+              </div>
+            </div>
+
+            <div id="resultMessage" class="message-soft mb-3">
+              Pick a route on the left to view today’s schedule.
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-dark table-borderless align-middle schedule-table mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col">Departure</th>
+                    <th scope="col">Tag</th>
+                  </tr>
+                </thead>
+                <tbody id="scheduleBody">
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+<div id="mapWrapper" class="glass-card p-4 mt-4" style="display:none;">
+  <div id="map" style="height:320px; width:100%; border-radius:18px;"></div>
+</div>
+
+      </div>
+
     
-    wrapper.scrollTop = finalScroll;
-  }
 
-  target.classList.add("pulse");
-  setTimeout(() => target.classList.remove("pulse"), 1000);
-}
-////////////////////////////////////////////////////////////
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-let leafletMap;
-let mapInitialized = false;
+      <script src="app.js"></script>
+</body>
 
-async function renderRouteMap(data) {
-  const mapWrapper = document.getElementById("mapWrapper");
-  if (!mapWrapper) return;
-
-  mapWrapper.style.display = "block";
-
-  if (!mapInitialized) {
-    leafletMap = L.map("map").setView([22.5726, 88.3639], 11);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors"
-    }).addTo(leafletMap);
-
-    mapInitialized = true;
-  }
-
-  leafletMap.eachLayer(layer => {
-    if (layer instanceof L.Marker || layer instanceof L.Polyline) {
-      leafletMap.removeLayer(layer);
-    }
-  });
-
-  const start = await geocodePlace(data.fromCity);
-  const end   = await geocodePlace(data.toCity);
-
-  if (!start || !end) return;
-  //  map focus near river line
-const riverBias = [
-  [start[0], start[1]],
-  [end[0], end[1]]
-];
-
-leafletMap.fitBounds(riverBias, {
-  padding: [60, 60],
-  maxZoom: 15
-});
-L.marker(start)
-  .addTo(leafletMap)
-  .bindPopup(`${data.fromCity} Ferry Ghat`);
-
-L.marker(end)
-  .addTo(leafletMap)
-  .bindPopup(`${data.toCity} Ferry Ghat`);
-
-
-  L.marker(start).addTo(leafletMap).bindPopup(data.fromCity);
-  L.marker(end).addTo(leafletMap).bindPopup(data.toCity);
-
-  L.polyline([start, end], {
-    color: "#3b82f6",
-    weight: 4
-  }).addTo(leafletMap);
-
-  leafletMap.fitBounds([start, end], { padding: [40, 40] });
-
-  setTimeout(() => {
-  leafletMap.fitBounds([start, end], { padding: [40, 40] });
-  leafletMap.invalidateSize();
-}, 200);
-
-}
-// ====== SMART GEOCODING (FAST + FERRY-FOCUSED) ======
-const geoCache = {};
-
-async function geocodePlace(place) {
-  if (!place) return null;
-
-  if (geoCache[place]) return geoCache[place];
-
-  const queries = [
-    `${place} ferry ghat, Hooghly river, West Bengal, India`,
-    `${place} ferry terminal, Hooghly river`,
-    `${place} ghat, Hooghly river`,
-    `${place}, West Bengal, India`
-  ];
-
-  for (const q of queries) {
-    try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`;
-      const res = await fetch(url, {
-        headers: {
-          "Accept": "application/json",
-          "User-Agent": "GangaBoatTracker/1.0"
-        }
-      });
-
-      const data = await res.json();
-      if (data && data.length) {
-        const coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-        geoCache[place] = coords; // ⚡ cache it
-        return coords;
-      }
-    } catch (e) {
-      console.warn("Geocoding failed for:", q);
-    }
-  }
-
-  return null;
-}
-
-
-
-
-
-// ====== INIT: wire up after DOM is ready ======
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("routeForm");
-  const button = document.getElementById("checkButton");
-
-  if (!form) {
-    console.warn("routeForm not found — aborting init");
-    return;
-  }
-
-  loadRoutes().catch((e) => console.warn("loadRoutes failed", e));
-
-  form.addEventListener("submit", async (ev) => {
-    ev.preventDefault();
-
-    const select = document.getElementById("routeSelect");
-    if (!select || !select.value) {
-      alert("Please choose a route.");
-      return;
-    }
-    const routeId = select.value;
-
-    if (button) {
-      button.disabled = true;
-      button.classList.add("boat-animating");
-    }
-
-    try {
-      const res = await fetch(`/api/schedule/${routeId}`);
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok || (data && data.error)) {
-        console.warn("schedule API returned error or non-ok", data);
-        const msg = document.getElementById("resultMessage");
-        if (msg) msg.textContent = data?.error || "No schedule available for this route.";
-
-        const demo = {
-          routeName: "Demo Route",
-          fromCity: "Demo A",
-          toCity: "Demo B",
-          nextDeparture: { timeLabel: "12:50 PM" },
-          serviceStatus: "running",
-          message: "Demo schedule (backend returned error)",
-          allDepartures: [
-            { timeLabel: "11:30 AM", status: "past" },
-            { timeLabel: "12:20 PM", status: "past" },
-            { timeLabel: "12:50 PM", status: "next" },
-            { timeLabel: "01:10 PM", status: "upcoming" },
-            { timeLabel: "01:30 PM", status: "upcoming" }
-          ]
-        };
-        renderScheduleTable(demo);
-        renderVerticalList(demo);
-      } else {
-        renderScheduleTable(data);
-        renderVerticalList(data);
-        renderRouteMap(data);
-
-      }
-    } catch (e) {
-      console.error("fetch schedule error", e);
-      alert("Could not fetch schedule. Check server.");
-    } finally {
-      if (button) {
-        setTimeout(() => {
-          button.disabled = false;
-          button.classList.remove("boat-animating");
-        }, 600);
-      }
-    }
-  });
-});
+</html>
