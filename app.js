@@ -80,7 +80,8 @@ async function loadRoutes() {
 
     (routes || []).forEach((r) => {
       const opt = document.createElement("option");
-      opt.value = r.code || r._id || JSON.stringify(r);
+    opt.value = r.name;
+
 
       if (r.fromCity && r.toCity) {
         opt.textContent = `${r.fromCity} → ${r.toCity}`;
@@ -422,7 +423,10 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch("routes.json");
       const routes = await res.json();
-      const data = routes[routeId];
+      const data = routes.find(r => r.name === routeId);
+
+
+
 
 
       if (!res.ok || (data && data.error)) {
