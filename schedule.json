@@ -1,0 +1,16 @@
+[{
+  "_id": {
+    "$oid": "6925a42c7cb403c41163b112"
+  },
+  "name": "Sherampore - barrackpore",
+  "fromCity": "Sherampore",
+  "toCity": "Barrackpore",
+  "firstDepartureMintures": 330,
+  "lastDepartureMinutes": 1340,
+  "crossingTimeMin": 5,
+  "crossingTimeMax": 7,
+  "highTideStartMinutes": 720,
+  "highTideDurationMinutes": 30,
+  "__v": 0,
+  "intervalMinutes": 20
+}]
