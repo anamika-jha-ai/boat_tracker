@@ -405,6 +405,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadRoutes().catch((e) => console.warn("loadRoutes failed", e));
 
+function minutesToTime(min) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  const ampm = h >= 12 ? "PM" : "AM";
+  const hh = ((h + 11) % 12 + 1);
+  return `${hh}:${m.toString().padStart(2, "0")} ${ampm}`;
+}
+
+function buildDepartures(route) {
+  const list = [];
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+  let foundNext = false;
+
+  for (let t = route.firstDepartureMinutes; t <= route.lastDepartureMinutes; t += route.intervalMinutes) {
+    let status = "upcoming";
+
+    if (t < nowMinutes) {
+      status = "past";
+    } else if (!foundNext) {
+      status = "next";
+      foundNext = true;
+    }
+
+    list.push({
+      timeLabel: minutesToTime(t),
+      status: status
+    });
+  }
+
+  return list;
+}
+
+  
   form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
 
@@ -424,6 +459,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("routes.json");
       const routes = await res.json();
       const data = routes.find(r => r.name === routeId);
+      data.allDepartures = buildDepartures(data);
+data.nextDeparture = data.allDepartures.find(d => d.status === "next");
+      data.routeName = data.name;
+data.serviceStatus = "running";
+data.message = "";
+
 
 
 
