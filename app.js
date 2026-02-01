@@ -421,8 +421,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const res = await fetch("routes.json");
-      const schedules = await res.json();
-      const data = schedules[routeId];
+      const routes = await res.json();
+      const data = routes[routeId];
 
 
       if (!res.ok || (data && data.error)) {
