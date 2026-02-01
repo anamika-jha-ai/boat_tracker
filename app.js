@@ -418,14 +418,24 @@ function buildDepartures(route) {
   const now = new Date();
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
+  const tideStart = route.highTideStartMinutes;
+  const tideEnd = route.highTideStartMinutes + route.highTideDurationMinutes;
+
   let foundNext = false;
 
   for (let t = route.firstDepartureMinutes; t <= route.lastDepartureMinutes; t += route.intervalMinutes) {
     let status = "upcoming";
 
-    if (t < nowMinutes) {
+    // ✅ High tide pause check
+    if (t >= tideStart && t <= tideEnd) {
+      status = "tide";
+    }
+    // ✅ Past
+    else if (t < nowMinutes) {
       status = "past";
-    } else if (!foundNext) {
+    }
+    // ✅ Next
+    else if (!foundNext) {
       status = "next";
       foundNext = true;
     }
@@ -438,6 +448,7 @@ function buildDepartures(route) {
 
   return list;
 }
+
 
   
   form.addEventListener("submit", async (ev) => {
