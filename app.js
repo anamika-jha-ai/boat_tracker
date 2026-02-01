@@ -174,7 +174,7 @@ function renderVerticalList(data) {
   //////////////////////////////////////
 const tableRow = document.querySelector(".schedule-table tbody tr.row-highlight");
 if (tableRow) {
-  tableRow.classList.add("next-highlight"); /
+  tableRow.classList.add("next-highlight"); 
   setTimeout(()=> tableRow.classList.remove("next-highlight"), 3000);
 }
   //  map
