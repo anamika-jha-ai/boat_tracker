@@ -94,4 +94,4 @@ Multi-language support
 🏷️ Tags
 #GangaBoatTracker #NodeJS #ExpressJS #Leaflet #OpenStreetMap 
 #SmartTransport #FerrySchedule #WebApp #StudentProject
-#MermaidDiagram #SystemArchitecture
+#MermaidDiagram #SystemArchitecture #tech
